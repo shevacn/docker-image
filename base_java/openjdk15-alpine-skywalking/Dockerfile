@@ -4,4 +4,4 @@ RUN apk add -U tzdata
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apk add --no-cache tini
-COPY plugins/ /data/plugins/
+COPY sw-8.7.0/ /data/plugins/sw/
