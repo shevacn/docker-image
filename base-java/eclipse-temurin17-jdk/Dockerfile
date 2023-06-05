@@ -1,5 +1,5 @@
 FROM eclipse-temurin:17-jdk
-RUN apt-get update && apt-get install tini 
+RUN apt-get update && apt-get install -y tini inetutils-ping dnsutils htop 
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone
 
 RUN curl https://dlcdn.apache.org/maven/maven-3/3.9.2/binaries/apache-maven-3.9.2-bin.tar.gz --output apache-maven-3.9.2-bin.tar.gz
