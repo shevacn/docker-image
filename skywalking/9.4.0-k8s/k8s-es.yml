@@ -26,13 +26,13 @@ spec:
               cpu: 1
           readinessProbe:
             tcpSocket:
-              port: 8080
+              port: 9200
             initialDelaySeconds: 5
             periodSeconds: 10
             failureThreshold: 5
           livenessProbe:
             tcpSocket:
-              port: 8080
+              port: 9200
             initialDelaySeconds: 15
             periodSeconds: 20
             failureThreshold: 5
