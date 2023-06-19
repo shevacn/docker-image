@@ -31,7 +31,7 @@ spec:
            - name: SW_STORAGE_ES_CLUSTER_NODES
              value: "skywalking-es.bsa.svc.cluster.local:9200"
            - name: SW_SEARCHABLE_TAG_KEYS
-             value: "p,login_uid,func,v,sip,uip,did"
+             value: "p,login_uid,func,v,sip,uip,did,msg_request_id"
 ---
 apiVersion: v1
 kind: Service
