@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skywalking-ui
+  namespace: bsa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: skywalking-ui
+  template:
+    metadata:
+      annotations:
+      labels:
+        app: skywalking-ui
+    spec:
+      containers:
+        - image: apache/skywalking-ui:v9.4.0
+        # - image: apache/official-skywalking-ui:v9.4.0-java17
+          name: skywalking-ui
+          resources:
+            limits:
+              memory: 2048Mi
+              cpu: 1
+            requests:
+              memory: 2048Mi
+              cpu: 1
+          env:
+           - name: SW_OAP_ADDRESS
+             value: "http://skywalking-oap-server.bsa.svc.cluster.local:12800"
+           - name: SW_ZIPKIN_ADDRESS
+             value: "http://skywalking-oap-server.bsa.svc.cluster.local:9412"
+           - name: SW_SEARCHABLE_TAG_KEYS
+             value: "p,login_uid,func,v,sip,uip,did"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: skywalking-ui
+  name: skywalking-ui
+  namespace: bsa
+spec:
+  ports:
+    - name: tcp8080
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: skywalking-ui
+  type: ClusterIP

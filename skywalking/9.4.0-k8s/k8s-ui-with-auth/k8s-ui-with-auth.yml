@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skywalking-ui-with-auth
+  namespace: bsa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: skywalking-ui-with-auth
+  template:
+    metadata:
+      labels:
+        app: skywalking-ui-with-auth
+    spec:
+      containers:
+        - image: build-by-dockerfile:v1.0
+          name: skywalking-ui-with-auth
+          resources:
+            limits:
+              memory: 256Mi
+            requests:
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: skywalking-ui-with-auth
+  namespace: bsa
+spec:
+  ports:
+    - name: http-ui
+      port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: skywalking-ui-with-auth
+  type: ClusterIP

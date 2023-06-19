@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: im-api
+  namespace: bsa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: im-api
+  template:
+    metadata:
+      annotations:
+      labels:
+        app: im-api
+    spec:
+      volumes:
+        - name: skywalking-agent
+          emptyDir: { }
+      initContainers:
+        - name: agent-container
+          image: apache/skywalking-java-agent:8.15.0-alpine
+          volumeMounts:
+            - name: skywalking-agent
+              mountPath: /agent
+          command: [ "/bin/sh" ]
+          args: [ "-c", "mv agent/optional-plugins/apm-trace-ignore* agent/plugins && cp -R /skywalking/agent /agent/" ]
+          resources:
+            limits:
+              memory: 256Mi
+              cpu: 0.1
+            requests:
+              memory: 256Mi
+              cpu: 0.1
+      containers:
+        - image: app/im-api:latest
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - sh
+                  - '-c'
+                  - sleep 6
+          livenessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /actuator/health/liveness
+              port: 9004
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+          name: im-api
+          readinessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /actuator/health/readiness
+              port: 9004
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+          resources:
+            limits:
+              memory: 1536Mi
+              cpu: 2
+            requests:
+              memory: 1536Mi
+              cpu: 2
+          volumeMounts:
+            - name: skywalking-agent
+              mountPath: /skywalking
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-javaagent:/skywalking/agent/skywalking-agent.jar -DSW_AGENT_COLLECTOR_BACKEND_SERVICES=skywalking-oap-server.bsa:11800 -DSW_GRPC_LOG_SERVER_HOST=skywalking-oap-server -DSW_JDBC_TRACE_SQL_PARAMETERS=true -DSW_PLUGIN_MONGODB_TRACE_PARAM=true -DSW_PLUGIN_JEDIS_TRACE_REDIS_PARAMETERS=true -Dskywalking.trace.ignore_path='HEAD:/,GET:/actuator/**' -DSW_AGENT_NAME=im-api"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: im-api
+  name: im-api
+  namespace: bsa
+spec:
+  ports:
+    - name: http-api
+      port: 80
+      protocol: TCP
+      targetPort: 8004
+    - name: http-management
+      port: 9090
+      protocol: TCP
+      targetPort: 9004
+  selector:
+    app: im-api
+  type: ClusterIP

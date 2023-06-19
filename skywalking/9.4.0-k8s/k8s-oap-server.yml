@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skywalking-oap-server
+  namespace: bsa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: skywalking-oap-server
+  template:
+    metadata:
+      annotations:
+      labels:
+        app: skywalking-oap-server
+    spec:
+      containers:
+        - image: apache/skywalking-oap-server:9.4.0
+        # - image: apache/skywalking-oap-server:9.4.0-java17
+          name: skywalking-oap-server
+          resources:
+            limits:
+              memory: 2048Mi
+              cpu: 1
+            requests:
+              memory: 2048Mi
+              cpu: 1
+          env:
+           - name: SW_STORAGE
+             value: "elasticsearch"
+           - name: SW_STORAGE_ES_CLUSTER_NODES
+             value: "skywalking-es.bsa.svc.cluster.local:9200"
+           - name: SW_SEARCHABLE_TAG_KEYS
+             value: "p,login_uid,func,v,sip,uip,did"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: skywalking-oap-server
+  name: skywalking-oap-server
+  namespace: bsa
+spec:
+  ports:
+    - name: tcp11800
+      port: 11800
+      protocol: TCP
+      targetPort: 11800
+    - name: tcp12800
+      port: 12800
+      protocol: TCP
+      targetPort: 12800
+  selector:
+    app: skywalking-oap-server
+  type: ClusterIP

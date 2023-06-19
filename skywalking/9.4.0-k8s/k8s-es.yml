@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skywalking-es
+  namespace: bsa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: skywalking-es
+  template:
+    metadata:
+      annotations:
+      labels:
+        app: skywalking-es
+    spec:
+      containers:
+        - image: elasticsearch:8.7.1
+          name: skywalking-es
+          resources:
+            limits:
+              memory: 2048Mi
+              cpu: 1
+            requests:
+              memory: 2048Mi
+              cpu: 1
+          env:
+           - discovery.type=single-node
+           - xpack.security.enabled=false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: skywalking-es
+  name: skywalking-es
+  namespace: bsa
+spec:
+  ports:
+    - name: tcp9200
+      port: 9200
+      protocol: TCP
+      targetPort: 9200
+    - name: tcp9300
+      port: 9300
+      protocol: TCP
+      targetPort: 9300
+  selector:
+    app: skywalking-es
+  type: ClusterIP
