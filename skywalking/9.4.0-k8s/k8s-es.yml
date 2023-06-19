@@ -24,6 +24,18 @@ spec:
             requests:
               memory: 2048Mi
               cpu: 1
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 5
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 5
           env:
            - name: discovery.type
              value: single-node
