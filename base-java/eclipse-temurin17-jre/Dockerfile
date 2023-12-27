@@ -1,3 +1,3 @@
 FROM eclipse-temurin:17-jre
-RUN apt-get update && apt-get install -y tini inetutils-ping dnsutils htop net-tools
+RUN apt-get update && apt-get install -y tini inetutils-ping dnsutils htop net-tools vim
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone
